@@ -131,20 +131,42 @@ public:
             return *this;
         }
         
-        // Address-of operator - always returns Proxy* to avoid type conflicts
-        Proxy* operator&() {
-            return this;
-        }
+        // Address-of operator - returns a special wrapper that can convert to both types
+        class AddressWrapper {
+        private:
+            Proxy* proxy_ptr;
+            bool is_pylist;
+        public:
+            AddressWrapper(Proxy* ptr) : proxy_ptr(ptr), is_pylist(false) {}
+            AddressWrapper(pylist* ptr) : proxy_ptr(nullptr), is_pylist(true) {
+                // Store pylist pointer in proxy_ptr for simplicity
+                proxy_ptr = reinterpret_cast<Proxy*>(ptr);
+            }
+            
+            operator Proxy*() const {
+                return is_pylist ? nullptr : proxy_ptr;
+            }
+            
+            operator pylist*() const {
+                if (is_pylist) {
+                    return reinterpret_cast<pylist*>(proxy_ptr);
+                }
+                if (proxy_ptr && std::holds_alternative<std::shared_ptr<ListNode>>(proxy_ptr->value_ref)) {
+                    static pylist temp;
+                    temp.node = std::get<std::shared_ptr<ListNode>>(proxy_ptr->value_ref);
+                    return &temp;
+                }
+                return nullptr;
+            }
+        };
         
-        // Implicit conversion to pylist pointer
-        operator pylist*() const {
+        AddressWrapper operator&() {
             if (std::holds_alternative<std::shared_ptr<ListNode>>(value_ref)) {
-                // Create a temporary pylist from the shared_ptr and return its address
                 static pylist temp;
                 temp.node = std::get<std::shared_ptr<ListNode>>(value_ref);
-                return &temp;
+                return AddressWrapper(&temp);
             }
-            return nullptr;
+            return AddressWrapper(this);
         }
         
         // Comparison operators between Proxy objects
