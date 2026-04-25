@@ -273,6 +273,42 @@ public:
         return x;
     }
     
+    // Support for compound assignment operators
+    friend int& operator+=(int &x, const pylist &ls) {
+        if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
+            x += std::get<int>(ls.node->data[0]);
+        }
+        return x;
+    }
+    
+    friend int& operator-=(int &x, const pylist &ls) {
+        if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
+            x -= std::get<int>(ls.node->data[0]);
+        }
+        return x;
+    }
+    
+    friend int& operator*=(int &x, const pylist &ls) {
+        if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
+            x *= std::get<int>(ls.node->data[0]);
+        }
+        return x;
+    }
+    
+    friend int& operator/=(int &x, const pylist &ls) {
+        if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
+            x /= std::get<int>(ls.node->data[0]);
+        }
+        return x;
+    }
+    
+    friend int& operator%=(int &x, const pylist &ls) {
+        if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
+            x %= std::get<int>(ls.node->data[0]);
+        }
+        return x;
+    }
+    
     friend std::ostream &operator<<(std::ostream &os, const pylist &ls) {
         std::vector<const ListNode*> visited;
         visited.push_back(ls.node.get());  // Add current node to visited list first

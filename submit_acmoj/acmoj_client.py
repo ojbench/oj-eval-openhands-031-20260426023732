@@ -45,9 +45,9 @@ class ACMOJClient:
         url = f"{self.api_base}{endpoint}"
         try:
             if method.upper() == "GET":
-                response = requests.get(url, headers=self.headers, params=params, timeout=10, proxies={"https": None, "http": None})
+                response = requests.get(url, headers=self.headers, params=params, timeout=30, proxies={"https": None, "http": None})
             elif method.upper() == "POST":
-                response = requests.post(url, headers=self.headers, data=data, timeout=10, proxies={"https": None, "http": None})
+                response = requests.post(url, headers=self.headers, data=data, timeout=30, proxies={"https": None, "http": None})
             else:
                 print(f"Unsupported HTTP method: {method}")
                 return None
@@ -82,6 +82,14 @@ class ACMOJClient:
             print(f"✅ Submission ID {submission_id} saved to {self.submission_log_file}")
         except Exception as e:
             print(f"⚠️ Warning: Failed to save submission ID: {e}")
+
+    def submit_code(self, problem_id: int, language: str, code_text: str) -> Optional[Dict]:
+        data = {"language": language, "code": code_text}
+        result = self._make_request("POST", f"/problem/{problem_id}/submit", data=data)
+        if result and 'id' in result:
+            self._save_submission_id(result['id'])
+
+        return result
 
     def submit_git(self, problem_id: int, git_url: str) -> Optional[Dict]:
         data = {"language": "git", "code": git_url}
