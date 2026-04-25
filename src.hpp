@@ -131,15 +131,20 @@ public:
             return *this;
         }
         
-        // Address-of operator - returns pylist* if the proxy contains a pylist, otherwise Proxy*
-        auto operator&() {
+        // Address-of operator - always returns Proxy* to avoid type conflicts
+        Proxy* operator&() {
+            return this;
+        }
+        
+        // Implicit conversion to pylist pointer
+        operator pylist*() const {
             if (std::holds_alternative<std::shared_ptr<ListNode>>(value_ref)) {
                 // Create a temporary pylist from the shared_ptr and return its address
                 static pylist temp;
                 temp.node = std::get<std::shared_ptr<ListNode>>(value_ref);
                 return &temp;
             }
-            return this;
+            return nullptr;
         }
         
         // Comparison operators between Proxy objects
