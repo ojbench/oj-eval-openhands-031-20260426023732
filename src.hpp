@@ -131,6 +131,36 @@ public:
             return *this;
         }
         
+        // Address-of operator
+        Proxy* operator&() {
+            return this;
+        }
+        
+        // Comparison operators between Proxy objects
+        friend bool operator==(const Proxy &p1, const Proxy &p2) {
+            return static_cast<int>(p1) == static_cast<int>(p2);
+        }
+        
+        friend bool operator!=(const Proxy &p1, const Proxy &p2) {
+            return static_cast<int>(p1) != static_cast<int>(p2);
+        }
+        
+        friend bool operator<(const Proxy &p1, const Proxy &p2) {
+            return static_cast<int>(p1) < static_cast<int>(p2);
+        }
+        
+        friend bool operator>(const Proxy &p1, const Proxy &p2) {
+            return static_cast<int>(p1) > static_cast<int>(p2);
+        }
+        
+        friend bool operator<=(const Proxy &p1, const Proxy &p2) {
+            return static_cast<int>(p1) <= static_cast<int>(p2);
+        }
+        
+        friend bool operator>=(const Proxy &p1, const Proxy &p2) {
+            return static_cast<int>(p1) >= static_cast<int>(p2);
+        }
+        
         // Support for nested access
         Proxy operator[](size_t i) {
             if (std::holds_alternative<std::shared_ptr<ListNode>>(value_ref)) {
@@ -271,6 +301,62 @@ public:
             return x % std::get<int>(ls.node->data[0]);
         }
         return x;
+    }
+    
+    // Support for pylist + pylist operations
+    friend int operator+(const pylist &ls1, const pylist &ls2) {
+        int val1 = 0, val2 = 0;
+        if (ls1.node->data.size() == 1 && std::holds_alternative<int>(ls1.node->data[0])) {
+            val1 = std::get<int>(ls1.node->data[0]);
+        }
+        if (ls2.node->data.size() == 1 && std::holds_alternative<int>(ls2.node->data[0])) {
+            val2 = std::get<int>(ls2.node->data[0]);
+        }
+        return val1 + val2;
+    }
+    
+    friend int operator-(const pylist &ls1, const pylist &ls2) {
+        int val1 = 0, val2 = 0;
+        if (ls1.node->data.size() == 1 && std::holds_alternative<int>(ls1.node->data[0])) {
+            val1 = std::get<int>(ls1.node->data[0]);
+        }
+        if (ls2.node->data.size() == 1 && std::holds_alternative<int>(ls2.node->data[0])) {
+            val2 = std::get<int>(ls2.node->data[0]);
+        }
+        return val1 - val2;
+    }
+    
+    friend int operator*(const pylist &ls1, const pylist &ls2) {
+        int val1 = 0, val2 = 0;
+        if (ls1.node->data.size() == 1 && std::holds_alternative<int>(ls1.node->data[0])) {
+            val1 = std::get<int>(ls1.node->data[0]);
+        }
+        if (ls2.node->data.size() == 1 && std::holds_alternative<int>(ls2.node->data[0])) {
+            val2 = std::get<int>(ls2.node->data[0]);
+        }
+        return val1 * val2;
+    }
+    
+    friend int operator/(const pylist &ls1, const pylist &ls2) {
+        int val1 = 0, val2 = 1;
+        if (ls1.node->data.size() == 1 && std::holds_alternative<int>(ls1.node->data[0])) {
+            val1 = std::get<int>(ls1.node->data[0]);
+        }
+        if (ls2.node->data.size() == 1 && std::holds_alternative<int>(ls2.node->data[0])) {
+            val2 = std::get<int>(ls2.node->data[0]);
+        }
+        return val2 != 0 ? val1 / val2 : 0;
+    }
+    
+    friend int operator%(const pylist &ls1, const pylist &ls2) {
+        int val1 = 0, val2 = 1;
+        if (ls1.node->data.size() == 1 && std::holds_alternative<int>(ls1.node->data[0])) {
+            val1 = std::get<int>(ls1.node->data[0]);
+        }
+        if (ls2.node->data.size() == 1 && std::holds_alternative<int>(ls2.node->data[0])) {
+            val2 = std::get<int>(ls2.node->data[0]);
+        }
+        return val2 != 0 ? val1 % val2 : 0;
     }
     
     // Support for compound assignment operators
