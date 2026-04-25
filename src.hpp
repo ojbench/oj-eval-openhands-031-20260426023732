@@ -136,6 +136,17 @@ public:
             return this;
         }
         
+        // Conversion to pylist pointer (for cases where Proxy* needs to be converted to pylist*)
+        operator pylist*() const {
+            if (std::holds_alternative<std::shared_ptr<ListNode>>(value_ref)) {
+                // Create a temporary pylist from the shared_ptr and return its address
+                static pylist temp;
+                temp.node = std::get<std::shared_ptr<ListNode>>(value_ref);
+                return &temp;
+            }
+            return nullptr;
+        }
+        
         // Comparison operators between Proxy objects
         friend bool operator==(const Proxy &p1, const Proxy &p2) {
             return static_cast<int>(p1) == static_cast<int>(p2);
@@ -359,38 +370,43 @@ public:
         return val2 != 0 ? val1 % val2 : 0;
     }
     
-    // Support for compound assignment operators
-    friend int& operator+=(int &x, const pylist &ls) {
+    // Support for compound assignment operators with template to handle different integer types
+    template<typename T>
+    friend T& operator+=(T &x, const pylist &ls) {
         if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
-            x += std::get<int>(ls.node->data[0]);
+            x += static_cast<T>(std::get<int>(ls.node->data[0]));
         }
         return x;
     }
     
-    friend int& operator-=(int &x, const pylist &ls) {
+    template<typename T>
+    friend T& operator-=(T &x, const pylist &ls) {
         if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
-            x -= std::get<int>(ls.node->data[0]);
+            x -= static_cast<T>(std::get<int>(ls.node->data[0]));
         }
         return x;
     }
     
-    friend int& operator*=(int &x, const pylist &ls) {
+    template<typename T>
+    friend T& operator*=(T &x, const pylist &ls) {
         if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
-            x *= std::get<int>(ls.node->data[0]);
+            x *= static_cast<T>(std::get<int>(ls.node->data[0]));
         }
         return x;
     }
     
-    friend int& operator/=(int &x, const pylist &ls) {
+    template<typename T>
+    friend T& operator/=(T &x, const pylist &ls) {
         if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
-            x /= std::get<int>(ls.node->data[0]);
+            x /= static_cast<T>(std::get<int>(ls.node->data[0]));
         }
         return x;
     }
     
-    friend int& operator%=(int &x, const pylist &ls) {
+    template<typename T>
+    friend T& operator%=(T &x, const pylist &ls) {
         if (ls.node->data.size() == 1 && std::holds_alternative<int>(ls.node->data[0])) {
-            x %= std::get<int>(ls.node->data[0]);
+            x %= static_cast<T>(std::get<int>(ls.node->data[0]));
         }
         return x;
     }
